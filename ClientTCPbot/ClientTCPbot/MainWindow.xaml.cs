@@ -23,7 +23,7 @@ namespace ClientTCPbot
         // @Toyohisa_bot
         public ObservableCollection<BoolStringClass> TheList { get; set; }
         static TelegramBotClient client;
-        static string pathDB= "ID_Chat_PersonDB.sqlite";
+        static string pathDB = "ID_Chat_PersonDB.sqlite";
         public MainWindow()
         {
             InitializeComponent();
@@ -47,7 +47,7 @@ namespace ClientTCPbot
                     item.PropertyChanged += TheList_Item_PropertyChanged;
                 this.DataContext = this;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -101,30 +101,10 @@ namespace ClientTCPbot
                 MessageBox.Show(ex.Message, ex.Message);
             }
         }
-        //Отправка видео
-        public void SendVideo(long chat_id)
-        {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "mp4 files (*.mp4)";
-            if(dialog.ShowDialog() == true)
-            {
-                try
-                {
-                    client.SendVideoAsync(chat_id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(new Uri(dialog.FileName)));
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show($"Video send error!\n{ex.Message}");
-                }
-                
-            }
-           
-        }
-
         //Проверка на наличие пользователя в базе данных, дабы не добавлять пользователей которые пишут старт уже будучи в базе данных
-        public bool IsClientInDB(string pathToDB,int IdChat)
+        public bool IsClientInDB(string pathToDB, int IdChat)
         {
-            bool tmp= false;
+            bool tmp = false;
             using (SQLiteConnection connection = new SQLiteConnection($"Data Source={pathToDB}"))
             {
                 connection.Open();
@@ -136,10 +116,10 @@ namespace ClientTCPbot
                         {
                             while (reader.Read())
                             {
-                               if (reader.GetInt32(0)== IdChat)
-                               {
+                                if (reader.GetInt32(0) == IdChat)
+                                {
                                     tmp = true;
-                               }
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -203,8 +183,121 @@ namespace ClientTCPbot
                 MessageBox.Show(ex.Message, ex.Message);
             }
         }
+
+        private void SendVideo(int chat_id)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "mp4 files (*.mp4)|*.mp4";
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    var k = File.OpenRead(dialog.FileName);
+                    client.SendVideoAsync(chat_id, k);
+                    if (CheckForSelectAll.IsChecked == true)
+                    {
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName + ">> TO ALL";
+                    }
+                    else
+                    {
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Video send error!\n{ex.Message}");
+                }
+
+            }
+        }
+
+        private void SentFileTxt(int chat_id)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Text files(*.txt)| *.txt";
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    var k = File.OpenRead(dialog.FileName);
+                    client.SendDocumentAsync(chat_id, k);
+                    if (CheckForSelectAll.IsChecked == true)
+                    {
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName + ">> TO ALL";
+                    }
+                    else
+                    {
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Video send error!\n{ex.Message}");
+                }
+
+            }
+        }
+
+        private void SendAudio(int tmpK)
+        {
+            OpenFileDialog openf = new OpenFileDialog();
+
+            openf.Filter = "Музыка (.mp3) | * .mp3";
+
+            if (openf.ShowDialog().Value == true)
+            {
+                try
+                {
+                    var k = File.OpenRead(openf.FileName);
+                    client.SendAudioAsync(new Telegram.Bot.Types.ChatId(tmpK), k);
+                    if (CheckForSelectAll.IsChecked == true)
+                    {
+                        TmpHistory.Text += Environment.NewLine + openf.FileName + ">> TO ALL";
+                    }
+                    else
+                    {
+                        TmpHistory.Text += Environment.NewLine + openf.FileName;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+
+        }
+
+        private void SendImg(int tmpK)
+        {
+            OpenFileDialog openf = new OpenFileDialog();
+
+            openf.Filter = "Image files (*.png;*.jpeg;*.bmp)|*.png;*.jpeg;*.bmp";
+
+            if (openf.ShowDialog().Value == true)
+            {
+                try
+                {
+                    var k = File.OpenRead(openf.FileName);
+                    client.SendPhotoAsync(new Telegram.Bot.Types.ChatId(tmpK), k);
+                    if (CheckForSelectAll.IsChecked == true)
+                    {
+                        TmpHistory.Text += Environment.NewLine + openf.FileName + ">> TO ALL";
+                    }
+                    else
+                    {
+                        TmpHistory.Text += Environment.NewLine + openf.FileName;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+
+        }
         //Отправка сообщения конкретным пользователям 
-        public void SendMassageToConcreteUsers()
+        public void SendMassageToConcreteUsers(string messtype)
         {
             try
             {
@@ -213,14 +306,37 @@ namespace ClientTCPbot
                     if (item.IsSelected == true)
                     {
                         int tmpK = GetUserChatID(pathDB, item.TheText.ToString());
-                        if (tmpK > 0)
+
+                        switch (messtype)
                         {
-                            SendMessgeToUser(tmpK);
+                            case "mp3":
+                                {
+                                    SendAudio(tmpK);
+                                }
+                                break;
+                            case "txt":
+                                {
+                                    SendMessgeToUser(tmpK);
+                                }
+                                break;
+                            case "wvm":
+                                {
+                                    SendVideo(tmpK);
+                                }
+                                break;
+                            case "doc":
+                                {
+                                    SentFileTxt(tmpK);
+                                }
+                                break;
+                            case "img":
+                                {
+                                    SendImg(tmpK);
+                                }
+                                break;
+
                         }
-                        else
-                        {
-                            MessageBox.Show("Chat ID not Found!","DataBase Error");
-                        }
+
                     }
                 }
             }
@@ -252,6 +368,8 @@ namespace ClientTCPbot
             }
             return IDChat;
         }
+
+
         //Отправка сообщения простому пользователю
         public void SendMessgeToUser(int ChatID)
         {
@@ -260,9 +378,9 @@ namespace ClientTCPbot
                 client.SendTextMessageAsync(new Telegram.Bot.Types.ChatId(ChatID), TxtBx.Text);
                 TxtBx.Text = String.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message); 
+                MessageBox.Show(ex.Message);
             }
         }
         //Проверка на начие нужных таблиц 
@@ -348,13 +466,13 @@ namespace ClientTCPbot
         {
             if (CheckForSelectAll.IsChecked == true)
             {
-                TmpHistory.Text += Environment.NewLine + TxtBx.Text+">> TO ALL";
+                TmpHistory.Text += Environment.NewLine + TxtBx.Text + ">> TO ALL";
                 SendMessagesToAll(pathDB);
             }
             else
             {
                 TmpHistory.Text += Environment.NewLine + TxtBx.Text;
-                SendMassageToConcreteUsers();
+                SendMassageToConcreteUsers("txt");
             }
         }
         void TheList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -389,7 +507,9 @@ namespace ClientTCPbot
         }
         private void SelectAll(bool select)
         {
-            var res = (from item in TheList select item).ToList<BoolStringClass>();
+            var res = (from item in TheList
+                       select item
+                    ).ToList<BoolStringClass>();
             if (res != null)
             {
                 foreach (var source in res)
@@ -399,23 +519,32 @@ namespace ClientTCPbot
             }
         }
 
-        private void btn_SendTextFile_Click(object sender, RoutedEventArgs e)
-        {
 
+
+        private void SendFileDoc_Click(object sender, RoutedEventArgs e)
+        {
+            SendMassageToConcreteUsers("doc");
         }
 
-        private void btn_SendVideoFile_Click(object sender, RoutedEventArgs e)
+        private void SendImage_Click(object sender, RoutedEventArgs e)
         {
-
+            SendMassageToConcreteUsers("img");
         }
 
-        private void btn_SendAudioFile_Click(object sender, RoutedEventArgs e)
+        private void Send_Video_Click(object sender, RoutedEventArgs e)
         {
+            SendMassageToConcreteUsers("wvm");
+        }
 
+        private void SendAudio_Click(object sender, RoutedEventArgs e)
+        {
+            SendMassageToConcreteUsers("mp3");
         }
     }
 
-   
+
+
+
     public class BoolStringClass : INotifyPropertyChanged
     {
         public string TheText { get; set; }

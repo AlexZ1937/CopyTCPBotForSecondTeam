@@ -17,15 +17,21 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="0.7*"></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox Grid.Column="1" Grid.Row="1"  Grid.RowSpan="3" Background="#FAA98B">
-            <Button x:Name="btn_SendTextFile" Content="Send Text File" Height="50" Width="150" Click="btn_SendTextFile_Click"/>
-            <Button x:Name="btn_SendVideoFile" Content="Send Video File" Height="50" Width="150" Click="btn_SendVideoFile_Click"/>
-            <Button x:Name="btn_SendAudioFile" Content="Send Text File" Height="50" Width="150" Click="btn_SendAudioFile_Click"/>
+        <ListBox Grid.Column="1" Grid.Row="1"  Grid.RowSpan="3" Background="#FAA98B" ItemsSource="{Binding TheList}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
         <CheckBox Name="CheckForSelectAll" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Content="Select All"  Margin="10.2,33,-10.4,10.4" Grid.Column="1"/>
 
-        <TextBox Name="TxtBx" Grid.Row="3" Margin="0,26.4,109.8,10" />
+        <TextBox Name="TxtBx" Grid.Row="3" Margin="0,26,192,10" />
         <TextBlock Name="TmpHistory" Grid.RowSpan="3" Background="AliceBlue"></TextBlock>
-        <Button Width="100" Height="50" Content="Send" Margin="419,26.4,9.8,10" Background="Red" Click="Button_Click" Grid.Column="0" Grid.Row="3"></Button>
+        <Button Name="Send_Msg" Content="Send Msg" Margin="341,26,89,10" Background="Red" Click="Button_Click" Grid.Column="0" Grid.Row="3"/>
+        <Button Name="Send_FileDoc" Content="Send File" HorizontalAlignment="Left" Margin="0,3,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Click="SendFileDoc_Click"/>
+        <Button Name="Send_Audio" Content="Send Audio" HorizontalAlignment="Left" Margin="75,3,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Click="SendAudio_Click"/>
+        <Button Name="Send_Image" Content="Send Image" HorizontalAlignment="Left" Margin="150,3,0,0" Grid.Row="3" VerticalAlignment="Top" Width="88" Click="SendImage_Click"/>
+        <Button Name="Send_Video" Content="Send Video" HorizontalAlignment="Left" Margin="239,3,0,0" Grid.Row="3" VerticalAlignment="Top" Width="97" Click="Send_Video_Click"/>
     </Grid>
 </Window>
