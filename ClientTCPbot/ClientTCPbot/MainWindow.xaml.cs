@@ -9,6 +9,7 @@ using Telegram.Bot.Args;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.ComponentModel;
+using Microsoft.Win32;
 
 namespace ClientTCPbot
 {
@@ -100,6 +101,18 @@ namespace ClientTCPbot
                 MessageBox.Show(ex.Message, ex.Message);
             }
         }
+        //Отправка видео
+        public void SendVideo(long chat_id)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "mp4 files (*.mp4)";
+            if(dialog.ShowDialog() == true)
+            {
+                client.SendVideoAsync(chat_id,new Telegram.Bot.Types.InputFiles.InputOnlineFile( new Uri(dialog.FileName)));
+            }
+           
+        }
+
         //Проверка на наличие пользователя в базе данных, дабы не добавлять пользователей которые пишут старт уже будучи в базе данных
         public bool IsClientInDB(string pathToDB,int IdChat)
         {
@@ -380,6 +393,8 @@ namespace ClientTCPbot
             }
         }
     }
+
+   
     public class BoolStringClass : INotifyPropertyChanged
     {
         public string TheText { get; set; }
