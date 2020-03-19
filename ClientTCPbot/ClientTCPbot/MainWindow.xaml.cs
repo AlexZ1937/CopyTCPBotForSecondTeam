@@ -108,7 +108,15 @@ namespace ClientTCPbot
             dialog.Filter = "mp4 files (*.mp4)";
             if(dialog.ShowDialog() == true)
             {
-                client.SendVideoAsync(chat_id,new Telegram.Bot.Types.InputFiles.InputOnlineFile( new Uri(dialog.FileName)));
+                try
+                {
+                    client.SendVideoAsync(chat_id, new Telegram.Bot.Types.InputFiles.InputOnlineFile(new Uri(dialog.FileName)));
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show($"Video send error!\n{ex.Message}");
+                }
+                
             }
            
         }
