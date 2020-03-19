@@ -368,9 +368,7 @@ namespace ClientTCPbot
         }
         private void SelectAll(bool select)
         {
-            var res = (from item in TheList
-                        select item
-                    ).ToList<BoolStringClass>();
+            var res = (from item in TheList select item).ToList<BoolStringClass>();
             if (res != null)
             {
                 foreach (var source in res)
@@ -378,6 +376,21 @@ namespace ClientTCPbot
                     source.IsSelected = select;
                 }
             }
+        }
+
+        private void btn_SendTextFile_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btn_SendVideoFile_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btn_SendAudioFile_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
     public class BoolStringClass : INotifyPropertyChanged

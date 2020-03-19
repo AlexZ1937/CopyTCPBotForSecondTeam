@@ -17,17 +17,15 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="0.7*"></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox Grid.Column="1" Grid.Row="1"  Grid.RowSpan="3" Background="#FAA98B" ItemsSource="{Binding TheList}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TheText}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+        <ListBox Grid.Column="1" Grid.Row="1"  Grid.RowSpan="3" Background="#FAA98B">
+            <Button x:Name="btn_SendTextFile" Content="Send Text File" Height="50" Width="150" Click="btn_SendTextFile_Click"/>
+            <Button x:Name="btn_SendVideoFile" Content="Send Video File" Height="50" Width="150" Click="btn_SendVideoFile_Click"/>
+            <Button x:Name="btn_SendAudioFile" Content="Send Text File" Height="50" Width="150" Click="btn_SendAudioFile_Click"/>
         </ListBox>
         <CheckBox Name="CheckForSelectAll" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Content="Select All"  Margin="10.2,33,-10.4,10.4" Grid.Column="1"/>
 
         <TextBox Name="TxtBx" Grid.Row="3" Margin="0,26.4,109.8,10" />
-       <TextBlock Name="TmpHistory" Grid.RowSpan="3" Background="AliceBlue"></TextBlock>
+        <TextBlock Name="TmpHistory" Grid.RowSpan="3" Background="AliceBlue"></TextBlock>
         <Button Width="100" Height="50" Content="Send" Margin="419,26.4,9.8,10" Background="Red" Click="Button_Click" Grid.Column="0" Grid.Row="3"></Button>
     </Grid>
 </Window>
