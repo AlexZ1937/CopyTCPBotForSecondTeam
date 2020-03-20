@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.ComponentModel;
 using Microsoft.Win32;
+using Telegram.Bot.Types.InputFiles;
 
 namespace ClientTCPbot
 {
@@ -31,18 +32,15 @@ namespace ClientTCPbot
             {
                 TheList = new ObservableCollection<BoolStringClass>();
                 TheList.CollectionChanged += TheList_CollectionChanged;
-                string smth = ConfigurationSettings.AppSettings.Get("TeleBotClientKey");
-                client = new TelegramBotClient(smth);
+
+                client = new TelegramBotClient(ConfigurationSettings.AppSettings.Get("TeleBotClientKey"));
                 client.OnMessage += AnswerTheQuestion;
                 client.StartReceiving();
+
                 if (!CheckExistDataBase(pathDB))
-                {
                     CreateDataBase(pathDB);
-                }
-                else
-                {
-                    LoadUserListFromDB(pathDB);
-                }
+                else LoadUserListFromDB(pathDB);
+
                 foreach (var item in TheList)
                     item.PropertyChanged += TheList_Item_PropertyChanged;
                 this.DataContext = this;
@@ -52,6 +50,7 @@ namespace ClientTCPbot
                 MessageBox.Show(ex.Message);
             }
         }
+        
         // Функция загружает через sqlite пользователей которые добавили бота на экран.
         private void LoadUserListFromDB(string pathToDB)
         {
@@ -77,6 +76,7 @@ namespace ClientTCPbot
                 }
             }
         }
+        
         //Те пользователи которые запустили бота отправляют start и их добавляют в базу данных 
         private void AnswerTheQuestion(object sender, MessageEventArgs e)
         {
@@ -101,6 +101,7 @@ namespace ClientTCPbot
                 MessageBox.Show(ex.Message, ex.Message);
             }
         }
+        
         //Проверка на наличие пользователя в базе данных, дабы не добавлять пользователей которые пишут старт уже будучи в базе данных
         public bool IsClientInDB(string pathToDB, int IdChat)
         {
@@ -131,6 +132,7 @@ namespace ClientTCPbot
             }
             return tmp;
         }
+        
         //Получения id чата из базы данных
         static int GetCurentIDInDBTables(string pathToDB)
         {
@@ -158,6 +160,7 @@ namespace ClientTCPbot
             }
             return result;
         }
+        
         //Отправка сообщения всем пользователям 
         public void SendMessagesToAll(string pathToDB)
         {
@@ -192,8 +195,7 @@ namespace ClientTCPbot
             {
                 try
                 {
-                    var k = File.OpenRead(dialog.FileName);
-                    client.SendVideoAsync(chat_id, k);
+                    client.SendVideoAsync(chat_id, new InputOnlineFile(File.OpenRead(dialog.FileName), dialog.FileName));
                     if (CheckForSelectAll.IsChecked == true)
                     {
                         TmpHistory.Text += Environment.NewLine + dialog.FileName + ">> TO ALL";
@@ -215,13 +217,12 @@ namespace ClientTCPbot
         private void SentFileTxt(int chat_id)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Text files(*.txt)| *.txt";
+            dialog.Filter = "Text files(*.txt;*.doc)| *.txt;*.doc";
             if (dialog.ShowDialog() == true)
             {
                 try
                 {
-                    var k = File.OpenRead(dialog.FileName);
-                    client.SendDocumentAsync(chat_id, k);
+                    client.SendDocumentAsync(chat_id, new InputOnlineFile(File.OpenRead(dialog.FileName), dialog.FileName));
                     if (CheckForSelectAll.IsChecked == true)
                     {
                         TmpHistory.Text += Environment.NewLine + dialog.FileName + ">> TO ALL";
@@ -239,25 +240,22 @@ namespace ClientTCPbot
             }
         }
 
-        private void SendAudio(int tmpK)
+        private void SendAudio(int chat_id)
         {
-            OpenFileDialog openf = new OpenFileDialog();
-
-            openf.Filter = "Музыка (.mp3) | * .mp3";
-
-            if (openf.ShowDialog().Value == true)
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Музыка (.mp3) | * .mp3";
+            if (dialog.ShowDialog().Value == true)
             {
                 try
                 {
-                    var k = File.OpenRead(openf.FileName);
-                    client.SendAudioAsync(new Telegram.Bot.Types.ChatId(tmpK), k);
+                    client.SendAudioAsync(chat_id, new InputOnlineFile(File.OpenRead(dialog.FileName), dialog.FileName));
                     if (CheckForSelectAll.IsChecked == true)
                     {
-                        TmpHistory.Text += Environment.NewLine + openf.FileName + ">> TO ALL";
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName + ">> TO ALL";
                     }
                     else
                     {
-                        TmpHistory.Text += Environment.NewLine + openf.FileName;
+                        TmpHistory.Text += Environment.NewLine + dialog.FileName;
                     }
                 }
                 catch (Exception ex)
@@ -268,18 +266,18 @@ namespace ClientTCPbot
 
         }
 
-        private void SendImg(int tmpK)
+        private async void SendImg(int tmpK)
         {
             OpenFileDialog openf = new OpenFileDialog();
 
-            openf.Filter = "Image files (*.png;*.jpeg;*.bmp)|*.png;*.jpeg;*.bmp";
+            openf.Filter = "Image files (*.png;*.jpeg;*.bmp;*.jpg)|*.png;*.jpeg;*.bmp;*.jpg";
 
             if (openf.ShowDialog().Value == true)
             {
                 try
                 {
                     var k = File.OpenRead(openf.FileName);
-                    client.SendPhotoAsync(new Telegram.Bot.Types.ChatId(tmpK), k);
+                    await client.SendPhotoAsync(new Telegram.Bot.Types.ChatId(tmpK), new InputOnlineFile(File.OpenRead(openf.FileName), openf.FileName));
                     if (CheckForSelectAll.IsChecked == true)
                     {
                         TmpHistory.Text += Environment.NewLine + openf.FileName + ">> TO ALL";
